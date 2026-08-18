@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 24px;
+            background: #000;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 420px;
+            margin: 80px auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #000;
+            color: #fff;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .message {
+            min-height: 20px;
+            color: #ffb3b3;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #111;
+            border: 1px solid #333;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #222;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #1a1a1a;
+        }
+
+        .empty {
+            text-align: center;
+            color: #bbb;
+            padding: 24px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logout-btn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="adminLoginSection" class="card">
+            <h1>Admin</h1>
+            <form id="adminLoginForm">
+                <input id="adminUser" type="text" placeholder="Usuário" required>
+                <input id="adminPassword" type="password" placeholder="Senha" required>
+                <button type="submit">Entrar</button>
+            </form>
+            <p id="adminMessage" class="message"></p>
+        </div>
+
+        <div id="adminPanel" class="hidden">
+            <div class="topbar">
+                <h1>Painel Admin</h1>
+                <button type="button" class="logout-btn" id="logoutAdminBtn">Sair</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Fase</th>
+                        <th>Palpite</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'monotofobia_players';
+        const ADMIN_KEY = 'monotofobia_admin_logged_in';
+        const ADMIN_USER = 'samuka';
+        const ADMIN_PASSWORD = 'samukagames009';
+
+        const adminLoginSection = document.getElementById('adminLoginSection');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminForm = document.getElementById('adminLoginForm');
+        const adminMessage = document.getElementById('adminMessage');
+        const adminTableBody = document.getElementById('adminTableBody');
+        const logoutAdminBtn = document.getElementById('logoutAdminBtn');
+
+        function loadPlayers() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function isAdminLoggedIn() {
+            return localStorage.getItem(ADMIN_KEY) === 'true';
+        }
+
+        function setAdminLoggedIn(value) {
+            if (value) {
+                localStorage.setItem(ADMIN_KEY, 'true');
+            } else {
+                localStorage.removeItem(ADMIN_KEY);
+            }
+        }
+
+        function showAdminPanel() {
+            adminLoginSection.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+            renderAdminTable();
+        }
+
+        function showAdminLogin() {
+            adminLoginSection.classList.remove('hidden');
+            adminPanel.classList.add('hidden');
+        }
+
+        function renderAdminTable() {
+            const players = loadPlayers();
+
+            if (!players.length) {
+                adminTableBody.innerHTML = '<tr><td colspan="3" class="empty">Nenhum jogador cadastrado ainda.</td></tr>';
+                return;
+            }
+
+            adminTableBody.innerHTML = players.map((player) => `
+                <tr>
+                    <td>${player.name}</td>
+                    <td>Fase ${player.phase || 1}</td>
+                    <td>${player.guess || 'Sem palpite'}</td>
+                </tr>
+            `).join('');
+        }
+
+        adminForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const user = document.getElementById('adminUser').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+
+            if (user === ADMIN_USER && password === ADMIN_PASSWORD) {
+                setAdminLoggedIn(true);
+                showAdminPanel();
+                adminForm.reset();
+                adminMessage.textContent = '';
+                return;
+            }
+
+            adminMessage.textContent = 'Usuário ou senha inválidos.';
+        });
+
+        logoutAdminBtn.addEventListener('click', function () {
+            setAdminLoggedIn(false);
+            showAdminLogin();
+            adminForm.reset();
+            adminMessage.textContent = '';
+        });
+
+        if (isAdminLoggedIn()) {
+            showAdminPanel();
+        } else {
+            showAdminLogin();
+        }
+    </script>
+</body>
+</html>
