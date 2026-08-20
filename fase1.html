@@ -8,8 +8,16 @@
 </head>
 <body class="page-fase page-fase-1">
     <div class="card">
-        <h1>FASE 1</h1>
-        <p>Volte aqui amanhã as 18:00, algo estará te esperando.</p>
+        <img class="phase-image" src="assets/img_arg1.png" alt="Imagem da Fase 1">
+
+        <form id="fase1Form" class="guess-form">
+            <label for="fase1Guess">Digite seu palpite</label>
+            <input id="fase1Guess" type="text" autocomplete="off" required>
+            <button type="submit">Enviar palpite</button>
+            <p id="fase1Message" class="message" aria-live="polite"></p>
+        </form>
     </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

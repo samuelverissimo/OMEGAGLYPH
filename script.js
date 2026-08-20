@@ -239,6 +239,40 @@ function initPhasePage() {
     });
 }
 
+function initFase1Page() {
+    const form = document.getElementById('fase1Form');
+    const guessInput = document.getElementById('fase1Guess');
+    const message = document.getElementById('fase1Message');
+
+    if (!form || !guessInput || !message) return;
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const guess = guessInput.value.trim().toLowerCase().replace(/\s+/g, '');
+        const isCorrect = guess === 'padredeespadas';
+
+        if (isCorrect) {
+            const saved = savePlayerProgress(2, guessInput.value.trim());
+
+            if (!saved) {
+                showMessage(message, 'Não foi possível salvar seu progresso.', true);
+                return;
+            }
+
+            showMessage(message, 'Palpite correto! Indo para a Fase 2...', false);
+            redirectToPhase(2);
+            return;
+        }
+
+        showMessage(
+            message,
+            'Palpite incorreto. Tente novamente.',
+            true
+        );
+    });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('authForm')) {
         initLoginScreen();
@@ -246,6 +280,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (document.getElementById('phaseSelect')) {
         initPhasePage();
+    }
+
+    if (document.getElementById('fase1Form')) {
+        initFase1Page();
     }
 });
 
