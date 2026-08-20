@@ -273,6 +273,113 @@ function initFase1Page() {
     });
 }
 
+let activePianoAudio = null;
+
+function playNoteAudio(note) {
+    const normalizedNote = note.toLowerCase();
+
+    if (activePianoAudio) {
+        activePianoAudio.pause();
+        activePianoAudio.currentTime = 0;
+    }
+
+    const noteFileName = encodeURIComponent(normalizedNote);
+    const audio = new Audio(`assets/sfx/fase_2/${noteFileName}.wav`);
+    activePianoAudio = audio;
+    audio.loop = false;
+    audio.play().catch(() => {});
+}
+
+function initFase2Page() {
+    const hintImage = document.getElementById('fase2HintImage');
+    const message = document.getElementById('fase2Message');
+    const checkButton = document.getElementById('fase2Check');
+    const clearButton = document.getElementById('fase2Clear');
+    const guessDisplay = document.getElementById('fase2GuessDisplay');
+    const pianoKeys = document.querySelectorAll('.page-fase-2 .key');
+
+    if (!hintImage || !message || !checkButton || !clearButton || !guessDisplay || !pianoKeys.length) return;
+
+    const correctAnswer = 'F A C A D A';
+    let currentGuess = [];
+    let answerAudio = null;
+
+    const setPianoLocked = (isLocked) => {
+        pianoKeys.forEach((key) => {
+            key.disabled = isLocked;
+            key.style.pointerEvents = isLocked ? 'none' : 'auto';
+            key.setAttribute('aria-disabled', String(isLocked));
+        });
+    };
+
+    const renderGuess = () => {
+        guessDisplay.textContent = currentGuess.length ? currentGuess.join(' ') : '-';
+    };
+
+    hintImage.addEventListener('click', () => {
+        if (answerAudio) {
+            answerAudio.pause();
+            answerAudio.currentTime = 0;
+        }
+
+        answerAudio = new Audio('assets/sfx/audio_resposta2.ogg');
+        window.__fase2AnswerAudio = answerAudio;
+        answerAudio.loop = false;
+        setPianoLocked(true);
+
+        answerAudio.addEventListener('ended', () => {
+            setPianoLocked(false);
+        }, { once: true });
+
+        answerAudio.play().catch(() => {
+            setPianoLocked(false);
+        });
+    });
+
+    pianoKeys.forEach((key) => {
+        key.addEventListener('click', () => {
+            if (answerAudio && !answerAudio.paused) {
+                return;
+            }
+
+            const note = key.dataset.note;
+            currentGuess.push(note);
+            renderGuess();
+            playNoteAudio(note);
+            showMessage(message, '', false);
+        });
+    });
+
+    clearButton.addEventListener('click', () => {
+        currentGuess = [];
+        renderGuess();
+        showMessage(message, '', false);
+    });
+
+    checkButton.addEventListener('click', () => {
+        const guessValue = currentGuess.join(' ');
+
+        if (guessValue === correctAnswer) {
+            const saved = savePlayerProgress(3, correctAnswer);
+
+            if (saved) {
+                showMessage(message, 'Palpite correto! Indo para a Fase 3...', false);
+            } else {
+                showMessage(message, 'Palpite correto! Próxima fase liberada.', false);
+            }
+
+            setTimeout(() => redirectToPhase(3), 800);
+            return;
+        }
+
+        currentGuess = [];
+        renderGuess();
+        showMessage(message, 'Palpite incorreto. Tente novamente.', true);
+    });
+
+    renderGuess();
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('authForm')) {
         initLoginScreen();
@@ -284,6 +391,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (document.getElementById('fase1Form')) {
         initFase1Page();
+    }
+
+    if (document.getElementById('fase2HintImage')) {
+        initFase2Page();
     }
 });
 

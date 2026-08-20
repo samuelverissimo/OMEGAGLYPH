@@ -7,9 +7,42 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="page-fase page-fase-2">
-    <div class="card">
+    <div class="card phase2-card">
         <h1>FASE 2</h1>
-        <p>Volte aqui hoje as 22:00.</p>
+
+        <img id="fase2HintImage" class="phase-image phase-image-2" src="assets/img_arg3.png" alt="Imagem da Fase 2">
+
+        <div class="piano-panel">
+            <div class="piano" aria-label="Piano de uma oitava">
+                <button class="key white" type="button" data-note="C">C</button>
+                <button class="key white" type="button" data-note="D">D</button>
+                <button class="key white" type="button" data-note="E">E</button>
+                <button class="key white" type="button" data-note="F">F</button>
+                <button class="key white" type="button" data-note="G">G</button>
+                <button class="key white" type="button" data-note="A">A</button>
+                <button class="key white" type="button" data-note="B">B</button>
+
+                <button class="key black" type="button" data-note="C#">C#</button>
+                <button class="key black" type="button" data-note="D#">D#</button>
+                <button class="key black" type="button" data-note="F#">F#</button>
+                <button class="key black" type="button" data-note="G#">G#</button>
+                <button class="key black" type="button" data-note="A#">A#</button>
+            </div>
+
+            <div class="piano-controls">
+                <button id="fase2Check" type="button">Verificar</button>
+                <button id="fase2Clear" type="button" class="secondary">Limpar</button>
+            </div>
+
+            <div class="guess-readout">
+                <span>Palpite:</span>
+                <strong id="fase2GuessDisplay">-</strong>
+            </div>
+
+            <p id="fase2Message" class="message" aria-live="polite"></p>
+        </div>
     </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
